@@ -389,7 +389,25 @@ class Manager implements IManager {
 
 		$expirationDate = $share->getExpirationDate();
 
-		if ($expirationDate !== null) {
+		if ($isRemote) {
+			$defaultExpireDate = $this->shareApiRemoteDefaultExpireDate();
+			$defaultExpireDays = $this->shareApiRemoteDefaultExpireDays();
+			$configProp = 'remote_defaultExpDays';
+			$isEnforced = $this->shareApiRemoteDefaultExpireDateEnforced();
+		} else {
+			$defaultExpireDate = $this->shareApiInternalDefaultExpireDate();
+			$defaultExpireDays = $this->shareApiInternalDefaultExpireDays();
+			$configProp = 'internal_defaultExpDays';
+			$isEnforced = $this->shareApiInternalDefaultExpireDateEnforced();
+		}
+
+		// If $expirationDate is falsy, overwrite flag is false, no expiration is set
+		if(empty($expirationDate) && !$share->getNoExpirationDate() && !$isEnforced) {
+			$share->setExpirationDate(null);
+			return $share;
+		}
+
+		if ($expirationDate != null) {
 			$expirationDate->setTimezone($this->dateTimeZone->getTimeZone());
 			$expirationDate->setTime(0, 0, 0);
 
@@ -409,17 +427,6 @@ class Manager implements IManager {
 			// This is a new share
 		}
 
-		if ($isRemote) {
-			$defaultExpireDate = $this->shareApiRemoteDefaultExpireDate();
-			$defaultExpireDays = $this->shareApiRemoteDefaultExpireDays();
-			$configProp = 'remote_defaultExpDays';
-			$isEnforced = $this->shareApiRemoteDefaultExpireDateEnforced();
-		} else {
-			$defaultExpireDate = $this->shareApiInternalDefaultExpireDate();
-			$defaultExpireDays = $this->shareApiInternalDefaultExpireDays();
-			$configProp = 'internal_defaultExpDays';
-			$isEnforced = $this->shareApiInternalDefaultExpireDateEnforced();
-		}
 		if ($fullId === null && $expirationDate === null && $defaultExpireDate) {
 			$expirationDate = new \DateTime('now', $this->dateTimeZone->getTimeZone());
 			$expirationDate->setTime(0, 0, 0);
@@ -432,7 +439,7 @@ class Manager implements IManager {
 
 		// If we enforce the expiration date check that is does not exceed
 		if ($isEnforced) {
-			if ($expirationDate === null) {
+			if (empty($expirationDate)) {
 				throw new \InvalidArgumentException('Expiration date is enforced');
 			}
 
@@ -474,6 +481,13 @@ class Manager implements IManager {
 	 */
 	protected function validateExpirationDateLink(IShare $share) {
 		$expirationDate = $share->getExpirationDate();
+		$isEnforced = $this->shareApiLinkDefaultExpireDateEnforced();
+
+		// If $expirationDate is falsy, overwrite flag is false, no expiration is set
+		if(empty($expirationDate) && !$share->getNoExpirationDate() && !$isEnforced) {
+			$share->setExpirationDate(null);
+			return $share;
+		}
 
 		if ($expirationDate !== null) {
 			$expirationDate->setTimezone($this->dateTimeZone->getTimeZone());
@@ -507,8 +521,8 @@ class Manager implements IManager {
 		}
 
 		// If we enforce the expiration date check that is does not exceed
-		if ($this->shareApiLinkDefaultExpireDateEnforced()) {
-			if ($expirationDate === null) {
+		if ($isEnforced) {
+			if (empty($expirationDate)) {
 				throw new \InvalidArgumentException('Expiration date is enforced');
 			}
 
