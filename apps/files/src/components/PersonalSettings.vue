@@ -20,10 +20,7 @@
   -->
 
 <template>
-	<div id="files-personal-settings" class="section">
-		<h2>{{ t('files', 'Files') }}</h2>
-		<TransferOwnershipDialogue />
-	</div>
+	<TransferOwnershipDialogue />
 </template>
 
 <script>

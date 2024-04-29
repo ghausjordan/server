@@ -20,12 +20,11 @@
   -->
 
 <template>
-	<div>
-		<h3>{{ t('files', 'Transfer ownership of a file or folder') }} </h3>
+	<NcSettingsSection :name="t('files', 'Transfer ownership of a file or folder')">
 		<form @submit.prevent="submit">
 			<p class="transfer-select-row">
-				<span>{{ readableDirectory }}</span>
-				<NcButton v-if="directory === undefined" 
+				<span v-if="!!readableDirectory">{{ readableDirectory }}</span>
+				<NcButton v-if="directory === undefined"
 					class="transfer-select-row__choose_button"
 					@click.prevent="start">
 					{{ t('files', 'Choose file or folder to transfer') }}
@@ -56,7 +55,7 @@
 				</NcButton>
 			</p>
 		</form>
-	</div>
+	</NcSettingsSection>
 </template>
 
 <script>
@@ -67,6 +66,7 @@ import { getFilePickerBuilder, showSuccess, showError } from '@nextcloud/dialogs
 import NcSelect from '@nextcloud/vue/dist/Components/NcSelect.js'
 import Vue from 'vue'
 import NcButton from '@nextcloud/vue/dist/Components/NcButton.js'
+import {NcSettingsSection} from '@nextcloud/vue'
 
 import logger from '../logger.js'
 
@@ -81,6 +81,7 @@ export default {
 	components: {
 		NcSelect,
 		NcButton,
+		NcSettingsSection,
 	},
 	data() {
 		return {
@@ -223,7 +224,6 @@ export default {
 	vertical-align: middle;
 }
 p {
-	margin-top: 12px;
 	margin-bottom: 12px;
 }
 .new-owner-row {
@@ -246,12 +246,11 @@ p {
 	}
 }
 .transfer-select-row {
+	display: flex;
+	gap: calc(var(--default-grid-baseline) * 2);
+	align-items: center;
 	span {
 		margin-right: 8px;
-	}
-
-	&__choose_button {
-		width: min(100%, 400px) !important;
 	}
 }
 </style>

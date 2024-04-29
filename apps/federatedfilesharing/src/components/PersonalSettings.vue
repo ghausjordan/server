@@ -182,7 +182,7 @@ export default {
 			margin-top: 1rem;
 		}
 		&__website-button {
-			width: min(100%, 400px) !important;
+			max-width: min(100%, 400px) !important;
 		}
 	}
 	.cloud-id-text {
