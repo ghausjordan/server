@@ -31,8 +31,9 @@ use OCP\Diagnostics\IEventLogger;
 class RedisFactory {
 	public const REDIS_MINIMAL_VERSION = '3.1.3';
 	public const REDIS_EXTRA_PARAMETERS_MINIMAL_VERSION = '5.3.0';
+	public const REDIS_CONNECTION_COOLDOWN = 300; // 5 minutes
 
-	/** @var  \Redis|\RedisCluster */
+	/** @var  \Redis|\RedisCluster|null */
 	private $instance;
 
 	private SystemConfig $config;
@@ -154,8 +155,22 @@ class RedisFactory {
 		if (!$this->isAvailable()) {
 			throw new \Exception('Redis support is not available');
 		}
-		if (!$this->instance instanceof \Redis) {
-			$this->create();
+
+		try {
+			if ($this->instance === null) {
+				// REDIS_CONNECTION_COOLDOWN seconds absolute cooldown before trying to reconnect in a different request
+				$cooldown = $this->config->getValue('redis.conn_cooldown', 0);
+				if (\time() - $cooldown < self::REDIS_CONNECTION_COOLDOWN) {
+					$this->instance = null;
+					return null;
+				}
+
+				$this->create();
+				$this->config->deleteValue('redis.conn_cooldown');
+			}
+		} catch (\RedisException $e) {
+			$this->instance = null;
+			$this->config->setValue('redis.conn_cooldown', \time());
 		}
 
 		return $this->instance;
