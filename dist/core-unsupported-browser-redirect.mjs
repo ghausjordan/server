@@ -1,0 +1,3 @@
+const __vite__fileDeps=["./chunks/RedirectUnsupportedBrowsers-Bax8BPQL.mjs","./core-common.mjs","./chunks/index-7XKGWWeV.mjs","./chunks/logger-Ct5_JyUm.mjs"],__vite__mapDeps=i=>i.map(i=>__vite__fileDeps[i]);
+/*! third party licenses: dist/vendor.LICENSE.txt */
+import{_ as e}from"./chunks/preload-helper-BG02UnR2.mjs";var o;!window.TESTING&&!((o=OC==null?void 0:OC.config)!=null&&o.no_unsupported_browser_warning)&&window.addEventListener("DOMContentLoaded",async function(){const{testSupportedBrowser:t}=await e(()=>import("./chunks/RedirectUnsupportedBrowsers-Bax8BPQL.mjs").then(n=>n.R),__vite__mapDeps([0,1,2,3]),import.meta.url);t()});
