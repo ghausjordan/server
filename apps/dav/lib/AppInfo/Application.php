@@ -81,6 +81,7 @@ use OCA\DAV\Listener\CalendarPublicationListener;
 use OCA\DAV\Listener\CalendarShareUpdateListener;
 use OCA\DAV\Listener\CardListener;
 use OCA\DAV\Listener\ClearPhotoCacheListener;
+use OCA\DAV\Listener\DeleteOutdatedSchedulingObjectsJobListener;
 use OCA\DAV\Listener\OutOfOfficeListener;
 use OCA\DAV\Listener\SubscriptionListener;
 use OCA\DAV\Listener\TrustedServerRemovedListener;
@@ -109,6 +110,7 @@ use OCP\IUser;
 use OCP\User\Events\OutOfOfficeChangedEvent;
 use OCP\User\Events\OutOfOfficeClearedEvent;
 use OCP\User\Events\OutOfOfficeScheduledEvent;
+use OCP\User\Events\UserFirstTimeLoggedInEvent;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
@@ -204,6 +206,8 @@ class Application extends App implements IBootstrap {
 		$context->registerEventListener(OutOfOfficeChangedEvent::class, OutOfOfficeListener::class);
 		$context->registerEventListener(OutOfOfficeClearedEvent::class, OutOfOfficeListener::class);
 		$context->registerEventListener(OutOfOfficeScheduledEvent::class, OutOfOfficeListener::class);
+
+		$context->registerEventListener(UserFirstTimeLoggedInEvent::class, DeleteOutdatedSchedulingObjectsJobListener::class);
 
 		$context->registerNotifierService(Notifier::class);
 
