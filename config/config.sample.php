@@ -947,7 +947,7 @@ $CONFIG = [
  * you can overwrite the user with this config flag for console.php and cron.php
  * Defaults to ``''`` (empty string)
  */
-'config.owner' => '',
+'php.user' => '',
 
 /**
  * Logging

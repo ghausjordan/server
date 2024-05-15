@@ -131,12 +131,12 @@ Options:
 
 		$user = posix_getuid();
 		$configUser = fileowner(OC::$configDir . 'config.php');
-		$configuredUser = $config->getSystemValueString('config.owner', '');
-		if ($user !== $configUser) {
+		$configuredUser = $config->getSystemValueString('php.user', '');
+		if ($user !== $configUser && $configuredUser === '') {
 			echo "Console has to be executed with the user that owns the file config/config.php" . PHP_EOL;
 			echo "Current user id: " . $user . PHP_EOL;
 			echo "Owner id of config.php: " . $configUser . PHP_EOL;
-			echo "Another option is to configure 'config.owner' in config.php which will overwrite this check."
+			echo "Another option is to configure 'php.user' in config.php which will overwrite this check.";
 			exit(1);
 		}
 
