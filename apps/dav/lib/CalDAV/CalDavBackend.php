@@ -2800,7 +2800,7 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 
 		if($queryResult === $limit) {
 			$this->logger->info("Deleted $limit scheduling objects, continuing with next batch");
-			$this->deleteActivitiesForMySQL($modifiedBefore, $limit);
+			$this->deleteOutdatedSchedulingObjectsForMySQL($modifiedBefore, $limit);
 		}
 	}
 

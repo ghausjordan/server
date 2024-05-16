@@ -46,7 +46,7 @@ class DeleteOutdatedSchedulingObjects extends TimedJob {
 	/**
 	 * @param array $argument
 	 */
-	protected function run($argument) {
+	protected function run($argument): void {
 		$time = $this->time->getTime() - (60 * 60);
 		$this->calDavBackend->deleteOutdatedSchedulingObjects($time, 50000);
 		$this->logger->info("Removed outdated scheduling objects");
