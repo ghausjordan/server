@@ -207,8 +207,6 @@ class Application extends App implements IBootstrap {
 		$context->registerEventListener(OutOfOfficeClearedEvent::class, OutOfOfficeListener::class);
 		$context->registerEventListener(OutOfOfficeScheduledEvent::class, OutOfOfficeListener::class);
 
-		$context->registerEventListener(UserFirstTimeLoggedInEvent::class, DeleteOutdatedSchedulingObjectsJobListener::class);
-
 		$context->registerNotifierService(Notifier::class);
 
 		$context->registerCalendarProvider(CalendarProvider::class);
