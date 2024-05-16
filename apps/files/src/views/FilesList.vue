@@ -93,15 +93,21 @@
 			:name="currentView?.emptyTitle || t('files', 'No files in here')"
 			:description="currentView?.emptyCaption || t('files', 'Upload some content or sync with your devices!')"
 			data-cy-files-content-empty>
-			<template #action>
+			<template v-if="dir !== '/'" #action>
 				<!-- Uploader -->
-				<UploadPicker v-if="dir !== '/'"
+				<UploadPicker v-if="currentFolder && canUpload && !isQuotaExceeded"
 					:content="dirContents"
 					:destination="currentFolder"
-					:multiple="true"
 					class="files-list__header-upload-button"
+					multiple
 					@failed="onUploadFail"
 					@uploaded="onUpload" />
+				<NcButton v-else
+					:aria-label="t('files', 'Go to the previous folder')"
+					:to="toPreviousDir"
+					type="primary">
+					{{ t('files', 'Go back') }}
+				</NcButton>
 			</template>
 			<template #icon>
 				<NcIconSvgWrapper :svg="currentView.icon" />
@@ -118,10 +124,10 @@
 </template>
 
 <script lang="ts">
-import type { Route } from 'vue-router'
-import type { Upload } from '@nextcloud/upload'
-import type { UserConfig } from '../types.ts'
 import type { View, ContentsWithRoot } from '@nextcloud/files'
+import type { Upload } from '@nextcloud/upload'
+import type { Route } from 'vue-router'
+import type { UserConfig } from '../types.ts'
 
 import { emit, subscribe, unsubscribe } from '@nextcloud/event-bus'
 import { Folder, Node, Permission } from '@nextcloud/files'
@@ -352,6 +358,14 @@ export default defineComponent({
 			return this.currentFolder !== undefined
 				&& !this.isEmptyDir
 				&& this.loading
+		},
+
+		/**
+		 * Route to the previous directory.
+		 */
+		toPreviousDir(): Route {
+			const dir = this.dir.split('/').slice(0, -1).join('/') || '/'
+			return { ...this.$route, query: { dir } }
 		},
 
 		shareAttributes(): number[] | undefined {
