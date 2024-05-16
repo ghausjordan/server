@@ -26,13 +26,9 @@ declare(strict_types=1);
 namespace OCA\DAV\Migration;
 
 use OCA\DAV\BackgroundJob\DeleteOutdatedSchedulingObjects;
-use OCA\DAV\BackgroundJob\DeleteOutdatedSchedulingObjectsForResources;
-use OCA\DAV\BackgroundJob\DeleteOutdatedSchedulingObjectsForRooms;
 use OCA\DAV\CalDAV\CalDavBackend;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\IJobList;
-use OCP\IUser;
-use OCP\IUserManager;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 

@@ -27,9 +27,7 @@ namespace OCA\DAV\BackgroundJob;
 
 use OCA\DAV\CalDAV\CalDavBackend;
 use OCP\AppFramework\Utility\ITimeFactory;
-use OCP\BackgroundJob\IJobList;
 use OCP\BackgroundJob\TimedJob;
-use OCP\IUserManager;
 use Psr\Log\LoggerInterface;
 
 class DeleteOutdatedSchedulingObjects extends TimedJob {
