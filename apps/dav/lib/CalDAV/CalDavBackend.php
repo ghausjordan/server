@@ -2759,7 +2759,7 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 		$queryResults = $this->atomic(function () use ($modifiedBefore, $limit) {
 			$query = $this->db->getQueryBuilder();
 			$query->delete('schedulingobjects')
-				->where($query->expr()->lte('last_modified', $query->createNamedParameter($modifiedBefore)))
+				->where($query->expr()->lte('lastmodified', $query->createNamedParameter($modifiedBefore)))
 				->setMaxResults($limit);
 			return $query->executeStatement();
 		}, $this->db);
@@ -2775,7 +2775,7 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 			$query = $this->db->getQueryBuilder();
 			$query->select('id')
 				->from('schedulingobjects')
-				->where($query->expr()->lte('last_modified', $query->createNamedParameter($modifiedBefore)))
+				->where($query->expr()->lte('lastmodified', $query->createNamedParameter($modifiedBefore)))
 				->setMaxResults($limit);
 			$result = $query->executeQuery();
 			$count = $result->rowCount();

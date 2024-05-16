@@ -39,16 +39,16 @@ class DeleteSchedulingObjects implements IRepairStep {
 	}
 
 	public function getName(): string {
-		return 'Add cleanup job for outdated scheduling events';
+		return 'Handle outdated scheduling events';
 	}
 
 	public function run(IOutput $output): void {
-		$output->startProgress();
+		$output->info('Cleaning up old scheduling events');
 		$time = $this->time->getTime() - (60 * 60);
 		$this->calDavBackend->deleteOutdatedSchedulingObjects($time, 50000);
 		if (!$this->jobList->has(DeleteOutdatedSchedulingObjects::class, [])) {
+			$output->info('Adding background job to delete old scheduling objects');
 			$this->jobList->add(DeleteOutdatedSchedulingObjects::class, []);
 		}
-		$output->finishProgress();
 	}
 }
