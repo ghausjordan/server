@@ -41,6 +41,7 @@ namespace OCA\DAV\CalDAV;
 
 use DateTime;
 use DateTimeInterface;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use OCA\DAV\AppInfo\Application;
 use OCA\DAV\CalDAV\Sharing\Backend;
 use OCA\DAV\Connector\Sabre\Principal;
@@ -2736,6 +2737,71 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 				->where($query->expr()->eq('principaluri', $query->createNamedParameter($principalUri)))
 				->andWhere($query->expr()->eq('uri', $query->createNamedParameter($objectUri)))
 				->executeStatement();
+	}
+
+	/**
+	 * Deletes all scheduling objects last modified before $modifiedBefore from the inbox collection.
+	 *
+	 * @param int $modifiedBefore
+	 * @param int $limit
+	 * @return void
+	 */
+	public function deleteOutdatedSchedulingObjects(int $modifiedBefore, int $limit): void {
+		$this->cachedObjects = [];
+		/** We need to run a different set of queries for MySQL as it doesn't support LIMITs on DELETE */
+		$platform = $this->db->getDatabasePlatform();
+		if($platform instanceof MySQLPlatform) {
+			$this->logger->info('Chose MySQL chunked delete for outdated scheduling objects');
+			$this->deleteOutdatedSchedulingObjectsForMySQL($modifiedBefore, $limit);
+			return;
+		}
+
+		$queryResults = $this->atomic(function () use ($modifiedBefore, $limit) {
+			$query = $this->db->getQueryBuilder();
+			$query->delete('schedulingobjects')
+				->where($query->expr()->lte('last_modified', $query->createNamedParameter($modifiedBefore)))
+				->setMaxResults($limit);
+			return $query->executeStatement();
+		}, $this->db);
+
+		if($queryResults === $limit) {
+			$this->logger->info("Deleted $limit scheduling objects, continuing with next batch");
+			$this->deleteOutdatedSchedulingObjects($modifiedBefore, $limit);
+		}
+	}
+
+	private function deleteOutdatedSchedulingObjectsForMySQL(int $modifiedBefore, int $limit): void {
+		$queryResult = $this->atomic(function () use ($modifiedBefore, $limit) {
+			$query = $this->db->getQueryBuilder();
+			$query->select('id')
+				->from('schedulingobjects')
+				->where($query->expr()->lte('last_modified', $query->createNamedParameter($modifiedBefore)))
+				->setMaxResults($limit);
+			$result = $query->executeQuery();
+			$count = $result->rowCount();
+			if($count === 0) {
+				return;
+			}
+			$ids = array_map(static function (array $id) {
+				return (int)$id[0];
+			}, $result->fetchAll(\PDO::FETCH_NUM));
+			$result->closeCursor();
+
+			$queryResult = 0;
+			$deleteQuery = $this->db->getQueryBuilder();
+			$deleteQuery->delete('schedulingobjects')
+				->where($deleteQuery->expr()->in('id', $deleteQuery->createParameter('ids'), IQueryBuilder::PARAM_INT_ARRAY));
+			foreach(array_chunk($ids, 1000) as $chunk) {
+				$deleteQuery->setParameter('ids', $chunk, IQueryBuilder::PARAM_INT_ARRAY);
+				$queryResult += $deleteQuery->executeStatement();
+			}
+			return $queryResult;
+		}, $this->db);
+
+		if($queryResult === $limit) {
+			$this->logger->info("Deleted $limit scheduling objects, continuing with next batch");
+			$this->deleteActivitiesForMySQL($modifiedBefore, $limit);
+		}
 	}
 
 	/**

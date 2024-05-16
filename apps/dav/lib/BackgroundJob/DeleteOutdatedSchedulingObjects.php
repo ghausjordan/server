@@ -36,36 +36,19 @@ class DeleteOutdatedSchedulingObjects extends TimedJob {
 	public function __construct(
 		private CalDavBackend $calDavBackend,
 		private LoggerInterface $logger,
-		private IUserManager $manager,
-		private IJobList $jobList,
 		ITimeFactory $timeFactory,
 	) {
 		parent::__construct($timeFactory);
-		$this->setInterval(60 * 60 * 24 * 7);
-		$this->setTimeSensitivity(self::TIME_INSENSITIVE);
+		$this->setInterval(60 * 60);
+		$this->setTimeSensitivity(self::TIME_SENSITIVE);
 	}
 
 	/**
 	 * @param array $argument
 	 */
 	protected function run($argument) {
-		$userId = $argument['userId'];
-		if (!$this->manager->userExists($userId)) {
-			$this->logger->info("$userId doesn't exist, removing job");
-			$this->jobList->remove(self::class, $argument);
-			return;
-		}
-
-		$principal = 'principals/users/'.$userId;
-		$children = $this->calDavBackend->getSchedulingObjects($principal);
-		$count = 0;
-		foreach($children as $object) {
-			if ($object['lastmodified'] < ($this->time->getTime() - 24 * 60 * 60)) {
-				$this->calDavBackend->deleteSchedulingObject($principal, $object['uri']);
-				$count++;
-			}
-		}
-
-		$this->logger->info("Removed $count outdated scheduling objects for user $userId");
+		$time = $this->time->getTime() - (60 * 60);
+		$this->calDavBackend->deleteOutdatedSchedulingObjects($time, 50000);
+		$this->logger->info("Removed outdated scheduling objects");
 	}
 }

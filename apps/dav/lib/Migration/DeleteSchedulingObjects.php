@@ -28,15 +28,18 @@ namespace OCA\DAV\Migration;
 use OCA\DAV\BackgroundJob\DeleteOutdatedSchedulingObjects;
 use OCA\DAV\BackgroundJob\DeleteOutdatedSchedulingObjectsForResources;
 use OCA\DAV\BackgroundJob\DeleteOutdatedSchedulingObjectsForRooms;
+use OCA\DAV\CalDAV\CalDavBackend;
+use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\IJobList;
 use OCP\IUser;
 use OCP\IUserManager;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 
-class DeleteSchedulingObjectsJobRegistrar implements IRepairStep {
-	public function __construct(private IUserManager $userManager,
-		private IJobList $jobList) {
+class DeleteSchedulingObjects implements IRepairStep {
+	public function __construct(private IJobList $jobList,
+		private ITimeFactory $time,
+		private CalDavBackend $calDavBackend) {
 	}
 
 	public function getName(): string {
@@ -45,23 +48,10 @@ class DeleteSchedulingObjectsJobRegistrar implements IRepairStep {
 
 	public function run(IOutput $output) {
 		$output->startProgress();
-		// Loop over all seen users
-		$this->userManager->callForSeenUsers(function (IUser $user) use ($output) {
-			$args = [
-				'userId' => $user->getUID(),
-			];
-			if (!$this->jobList->has(DeleteOutdatedSchedulingObjects::class, $args)) {
-				$this->jobList->add(DeleteOutdatedSchedulingObjects::class, $args);
-			}
-			$output->advance();
-		});
-
-		if (!$this->jobList->has(DeleteOutdatedSchedulingObjectsForRooms::class, [])) {
-			$this->jobList->add(DeleteOutdatedSchedulingObjectsForRooms::class, []);
-		}
-
-		if (!$this->jobList->has(DeleteOutdatedSchedulingObjectsForResources::class, [])) {
-			$this->jobList->add(DeleteOutdatedSchedulingObjectsForResources::class, []);
+		$time = $this->time->getTime() - (60 * 60);
+		$this->calDavBackend->deleteOutdatedSchedulingObjects($time, 50000);
+		if (!$this->jobList->has(DeleteOutdatedSchedulingObjects::class, [])) {
+			$this->jobList->add(DeleteOutdatedSchedulingObjects::class, []);
 		}
 		$output->finishProgress();
 	}
