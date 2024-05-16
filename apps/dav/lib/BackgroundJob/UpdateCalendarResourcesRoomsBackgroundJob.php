@@ -67,7 +67,7 @@ class UpdateCalendarResourcesRoomsBackgroundJob extends TimedJob {
 		$this->calDavBackend = $calDavBackend;
 
 		// Run once an hour
-		$this->setInterval(60 * 60);
+		$this->setInterval(60 * 30);
 		$this->setTimeSensitivity(self::TIME_SENSITIVE);
 	}
 
