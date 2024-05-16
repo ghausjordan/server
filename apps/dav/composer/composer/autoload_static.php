@@ -294,7 +294,6 @@ class ComposerStaticInitDAV
         'OCA\\DAV\\Listener\\CalendarShareUpdateListener' => __DIR__ . '/..' . '/../lib/Listener/CalendarShareUpdateListener.php',
         'OCA\\DAV\\Listener\\CardListener' => __DIR__ . '/..' . '/../lib/Listener/CardListener.php',
         'OCA\\DAV\\Listener\\ClearPhotoCacheListener' => __DIR__ . '/..' . '/../lib/Listener/ClearPhotoCacheListener.php',
-        'OCA\\DAV\\Listener\\DeleteOutdatedSchedulingObjectsJobListener' => __DIR__ . '/..' . '/../lib/Listener/DeleteOutdatedSchedulingObjectsJobListener.php',
         'OCA\\DAV\\Listener\\OutOfOfficeListener' => __DIR__ . '/..' . '/../lib/Listener/OutOfOfficeListener.php',
         'OCA\\DAV\\Listener\\SubscriptionListener' => __DIR__ . '/..' . '/../lib/Listener/SubscriptionListener.php',
         'OCA\\DAV\\Listener\\TrustedServerRemovedListener' => __DIR__ . '/..' . '/../lib/Listener/TrustedServerRemovedListener.php',

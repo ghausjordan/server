@@ -279,7 +279,6 @@ return array(
     'OCA\\DAV\\Listener\\CalendarShareUpdateListener' => $baseDir . '/../lib/Listener/CalendarShareUpdateListener.php',
     'OCA\\DAV\\Listener\\CardListener' => $baseDir . '/../lib/Listener/CardListener.php',
     'OCA\\DAV\\Listener\\ClearPhotoCacheListener' => $baseDir . '/../lib/Listener/ClearPhotoCacheListener.php',
-    'OCA\\DAV\\Listener\\DeleteOutdatedSchedulingObjectsJobListener' => $baseDir . '/../lib/Listener/DeleteOutdatedSchedulingObjectsJobListener.php',
     'OCA\\DAV\\Listener\\OutOfOfficeListener' => $baseDir . '/../lib/Listener/OutOfOfficeListener.php',
     'OCA\\DAV\\Listener\\SubscriptionListener' => $baseDir . '/../lib/Listener/SubscriptionListener.php',
     'OCA\\DAV\\Listener\\TrustedServerRemovedListener' => $baseDir . '/../lib/Listener/TrustedServerRemovedListener.php',
