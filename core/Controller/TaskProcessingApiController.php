@@ -418,4 +418,32 @@ class TaskProcessingApiController extends \OCP\AppFramework\OCSController {
 			return new DataResponse(['message' => $this->l->t('Internal error')], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 	}
+
+	/**
+	 * Returns the next scheduled task for the taskTypeId
+	 *
+	 * @param string $taskTypeId The id of the task type
+	 * @return DataResponse<Http::STATUS_OK, array{task: CoreTaskProcessingTask}, array{}>|DataResponse<Http::STATUS_NO_CONTENT, null, array{}>|DataResponse<Http::STATUS_INTERNAL_SERVER_ERROR, array{message: string}, array{}>
+	 *
+	 *  200: Task returned
+	 *  204: No task found
+	 */
+	#[NoAdminRequired]
+	#[ApiRoute(verb: 'GET', url: '/tasks/next', root: '/taskprocessing')]
+	public function getNextScheduledTask(string $taskTypeId): DataResponse {
+		try {
+			$task = $this->taskProcessingManager->getNextScheduledTask($taskTypeId);
+
+			/** @var CoreTaskProcessingTask $json */
+			$json = $task->jsonSerialize();
+
+			return new DataResponse([
+				'task' => $json,
+			]);
+		} catch (\OCP\TaskProcessing\Exception\NotFoundException $e) {
+			return new DataResponse(null, Http::STATUS_NO_CONTENT);
+		} catch (Exception $e) {
+			return new DataResponse(['message' => $this->l->t('Internal error')], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
 }
